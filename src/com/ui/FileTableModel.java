@@ -35,8 +35,6 @@ class FileTableModel extends AbstractTableModel {
                 return fileSystemView.getSystemDisplayName(file);
             case 2:
                 return file.getPath();
-//            case 3:
-//                return file.length();
             case 3:
                 return file.lastModified();
             default:
@@ -53,8 +51,7 @@ class FileTableModel extends AbstractTableModel {
         switch (column) {
             case 0:
                 return ImageIcon.class;
-//            case 3:
-//                return Long.class;
+
             case 3:
                 return Date.class;
         }

@@ -1,6 +1,7 @@
 package com.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 
@@ -24,6 +25,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JSplitPane;
@@ -33,6 +36,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.JTable;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.AncestorListener;
 import javax.swing.event.TreeSelectionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -99,7 +103,129 @@ public class FileExplorerUI extends JFrame {
 				}
 			}
 		});
+		
+		JButton btnOpen = new JButton("Open");
+		toolBar.add(btnOpen);
+		btnOpen.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if (!folderSource.equals("")) {
+					File file = new File(folderSource);
+					if(file.isFile()) {
+						Desktop desktop = Desktop.getDesktop();
+						try {
+							desktop.open(file);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}else {
+						JOptionPane.showMessageDialog(null, "This is not a file !!!");
+					}
+					
+				} else {
+					JOptionPane.showMessageDialog(null, "You haven't choosen file yet !!!");
+				}
+			}
+		});
+		
+		JButton btnNewFile = new JButton("New File");
+		toolBar.add(btnNewFile);
+		btnNewFile.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if (!folderSource.equals("")) {
+					File file = new File(folderSource);
+					if(file.isDirectory()) {
+						//TODO create new file
+						String nameFile = JOptionPane.showInputDialog(null, "Please enter name's file:");
+						File newFile = new File(folderSource, nameFile);
+						if(newFile.exists()) {
+							JOptionPane.showMessageDialog(null, "The name's file is exists !!!");
+						}else {
+							try {
+								newFile.createNewFile();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+					}else {
+						JOptionPane.showMessageDialog(null, "This is not a folder !!!");
+					}
+					
+				} else {
+					JOptionPane.showMessageDialog(null, "You haven't choosen parent file !!!");
+				}
+			}
+		});
+		
+		JButton btnEditName = new JButton("Edit Name");
+		toolBar.add(btnEditName);
+		btnEditName.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if (!folderSource.equals("")) {
+					String newName = JOptionPane.showInputDialog(null, "Please enter a new name:");
+					String parentPath = folderSource.substring(0,folderSource.lastIndexOf("\\"));
+					
+					File file = new File(folderSource);
+					if(file.isFile()) {
+						String extension = folderSource.substring(folderSource.lastIndexOf("."));
+						newName = newName+extension;
+						File newFile = new File(parentPath,newName);
+						if(newFile.exists()) {
+							JOptionPane.showMessageDialog(null, "The name's file is exists !!!");
+						}else {
+							boolean success = file.renameTo(newFile);
+							if(!success) {
+								JOptionPane.showMessageDialog(null, "File haven't changed own name yet !!!");
+							}else {
+								JOptionPane.showMessageDialog(null, "Successfully !!!");
+								System.out.println(parentPath);
+								File[] files = file.getParentFile().listFiles();
+								setTableData(files);
+							}
+						}
+					}
+					
+				} else {
+					JOptionPane.showMessageDialog(null, "You haven't choosen parent file !!!");
+				}
+			}
+		});
+		
+		JButton btnDelete = new JButton("Delete");
+		toolBar.add(btnDelete);
+		btnDelete.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if (!folderSource.equals("")) {
+					File file = new File(folderSource);
+					int input = JOptionPane.showConfirmDialog(null, "Do you really want to delete file?");
+					if(input == 0) {
+						File parentFile = file.getParentFile();
+						file.delete();
+						File[] files = parentFile.listFiles();
+						setTableData(files);
+					}
+					
+				} else {
+					JOptionPane.showMessageDialog(null, "You haven't choosen parent file !!!");
+				}
+			}
+		});
+		
 		toolBar.add(btnCopy);
+		
 		
 		//handle action click paste
 		JButton btnPaste = new JButton("Paste");
